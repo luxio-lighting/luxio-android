@@ -62,8 +62,8 @@ class Fields(val fields: Map<Int, List<ByteArray>>) {
     fun message(field: Int) = Proto.decode(fields[field]?.firstOrNull() ?: byteArrayOf())
 }
 data class Light(val id: String, val name: String, val address: String)
-data class LightState(val name: String, val strip: String, val count: Int, val gpio: Int, val channel: Int, val brightness: Int, val animation: String) {
-    companion object { fun from(fields: Fields): LightState { val c = fields.message(3); return LightState(c.text(1), c.text(2), c.number(3), c.number(4), c.number(5), fields.number(4), fields.text(6)) } }
+data class LightState(val name: String, val strip: String, val count: Int, val gpio: Int, val channel: Int, val brightness: Int, val animation: String, val on: Boolean, val build: Int) {
+    companion object { fun from(fields: Fields): LightState { val c = fields.message(3); return LightState(c.text(1), c.text(2), c.number(3), c.number(4), c.number(5), (if (fields.number(2) >= 11) fields.number(4) else if (fields.number(4) > 0) (fields.number(4) * 256 + 127) / 255 else 16).coerceIn(1, 256), fields.text(6), if (fields.number(2) >= 11) fields.number(9) != 0 else fields.number(4) > 0, fields.number(2)) } }
 }
 class DeviceClient(private val address: String) {
     private var nextId = 1
@@ -81,7 +81,16 @@ class DeviceClient(private val address: String) {
             val bytes = connection.inputStream.use { it.readNBytes(32769) }; check(bytes.size <= 32768)
             val result = Proto.decode(bytes)
             check(result.number(1) == id) { "Mismatched device response" }; check(result.text(2).isEmpty()) { result.text(2) }
-            result
+            if (operation == 5 && result.number(11) > 0) {
+                val offset = Proto.decode(payload.bytes.toByteArray()).number(9)
+                val next = result.number(11)
+                check(next > offset && !result.fields[4].isNullOrEmpty()) { "Invalid script listing continuation" }
+                val page = request(5, Proto().uint(9, next.toLong()))
+                Fields(result.fields.toMutableMap().apply {
+                    put(4, (result.fields[4] ?: emptyList()) + (page.fields[4] ?: emptyList()))
+                    remove(11)
+                })
+            } else result
         } finally { connection.disconnect() }
     }
     suspend fun color(channels: List<Int>): Fields {

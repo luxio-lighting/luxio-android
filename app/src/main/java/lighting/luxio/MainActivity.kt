@@ -105,8 +105,15 @@ class MainActivity : ComponentActivity() {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { TextButton(onClick = onBack) { Text("‹ Your lights") }; TextButton(onClick = { settings = true }) { Text("Settings") } }
         Box(Modifier.fillMaxWidth().height(175.dp).background(Brush.radialGradient(listOf(lilac.copy(alpha = .4f), Color.Transparent))), contentAlignment = Alignment.Center) { Text("◈", fontSize = 90.sp, color = lilac) }
         Text(state?.name ?: light.name, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Brightness"); Text("${(brightness / 255 * 100).toInt()}%", color = Color.Gray) }
-        Slider(brightness, { brightness = it }, valueRange = 0f..255f, onValueChangeFinished = { scope.launch { try { state = LightState.from(client.request(2, Proto().uint(4, brightness.toLong())).message(3)); error = "" } catch (e: Exception) { error = e.message ?: "Failed" } } })
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Power")
+            Switch(checked = state?.on == true, enabled = state != null, onCheckedChange = { on -> scope.launch {
+                try { val modern = (state?.build ?: 11) >= 11; state = LightState.from(client.request(if (modern) 15 else 2, if (modern) Proto().uint(10, if (on) 1L else 0L) else Proto().uint(4, if (on) (brightness * 255 / 256).toLong().coerceAtLeast(1) else 0L)).message(3)); error = "" }
+                catch (e: Exception) { error = e.message ?: "Failed" }
+            } })
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Brightness"); Text("${(brightness / 256 * 100).toInt()}%", color = Color.Gray) }
+        Slider(brightness, { brightness = it }, valueRange = 1f..256f, onValueChangeFinished = { scope.launch { try { state = LightState.from(client.request(2, Proto().uint(4, if ((state?.build ?: 11) >= 11) brightness.toLong() else (brightness * 255 / 256).toLong().coerceAtLeast(1))).message(3)); error = "" } catch (e: Exception) { error = e.message ?: "Failed" } } })
         OutlinedTextField(custom, { custom = it }, label = { Text("Your color · #RRGGBB") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         Button(onClick = { scope.launch { try { require(custom.matches(Regex("#[a-fA-F0-9]{6}"))) { "Enter a color such as #AA77FF" }; val n = custom.drop(1).toInt(16); state = LightState.from(client.color(listOf(n shr 16, n shr 8 and 255, n and 255, 0, 0, 0)).message(3)); error = "" } catch (e: Exception) { error = e.message ?: "Failed" } } }) { Text("Apply color") }
         if (state?.strip != "WS2812") Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) { listOf("Warm", "Cool").forEach { label -> OutlinedButton(onClick = { scope.launch { try { state = LightState.from(client.color(if (state?.strip == "WS2814") listOf(0,0,0,255,0,0) else if (label == "Warm") listOf(0,0,0,0,255,0) else listOf(0,0,0,0,0,255)).message(3)) } catch (e: Exception) { error = e.message ?: "Failed" } } }) { Text(label) } } }
