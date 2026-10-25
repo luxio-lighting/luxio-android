@@ -125,7 +125,7 @@ class MainActivity : ComponentActivity() {
         Button(onClick = { scope.launch { try { require(custom.matches(Regex("#[a-fA-F0-9]{6}"))) { "Enter a color such as #AA77FF" }; val n = custom.drop(1).toInt(16); state = LightState.from(client.color(listOf(n shr 16, n shr 8 and 255, n and 255, 0, 0, 0)).message(3)); error = "" } catch (e: Exception) { error = e.message ?: "Failed" } } }) { Text("Apply color") }
         val whites = when (state?.strip) {
             "WS2805" -> listOf("Warm" to listOf(0,0,0,0,255,0), "Cool" to listOf(0,0,0,0,0,255))
-            "WS2814" -> listOf("White" to listOf(0,0,0,255,0,0))
+            "WS2814", "SK6812" -> listOf("White" to listOf(0,0,0,255,0,0))
             else -> emptyList()
         }
         if (whites.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -195,12 +195,84 @@ class MainActivity : ComponentActivity() {
             } }) { Text("Save parameters") }
         }
         if (!state?.animation.isNullOrBlank()) TextButton(onClick = { scope.launch { try { state = LightState.from(client.request(11).message(3)) } catch (e: Exception) { error = e.message ?: "Failed" } } }) { Text("Stop animation") }
-        TextButton(onClick = { scope.launch { try { pairing = client.request(12).text(6) } catch (e: Exception) { error = e.message ?: "Failed" } } }) { Text("Connect to Matter") }
-        if (pairing.isNotBlank()) Text(pairing, fontSize = 30.sp, color = lilac)
+        if (state?.supportsMatter == true && state?.matterEnabled == true && state?.wifiEnabled == true) TextButton(onClick = { scope.launch { try { pairing = client.request(12).text(6) } catch (e: Exception) { error = e.message ?: "Failed" } } }) { Text("Connect to Matter") }
+        if (state?.supportsMatter == true && state?.matterEnabled == true && state?.wifiEnabled == true && pairing.isNotBlank()) Text(pairing, fontSize = 30.sp, color = lilac)
         if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error)
     }
     if (settings && state != null) {
-        var name by remember { mutableStateOf(state!!.name) }; var strip by remember { mutableStateOf(state!!.strip) }; var count by remember { mutableStateOf(state!!.count.toString()) }; var gpio by remember { mutableStateOf(state!!.gpio.toString()) }
-        AlertDialog(onDismissRequest = { settings = false }, title = { Text("Light settings") }, text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)) { OutlinedTextField(name, { name = it }, label = { Text("Name") }); listOf("WS2805","WS2814","WS2812").forEach { type -> Row(Modifier.clickable { strip = type }, verticalAlignment = Alignment.CenterVertically) { RadioButton(strip == type, { strip = type }); Text(type) } }; OutlinedTextField(count, { count = it }, label = { Text("Controllers") }); OutlinedTextField(gpio, { gpio = it }, label = { Text("GPIO") }); if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error) } }, confirmButton = { TextButton(onClick = { scope.launch { try { val n = count.toInt(); val pin = gpio.toInt(); require(n in 1..1024 && pin in 0..54 && name.isNotBlank()); val config = Proto().text(1,name).text(2,strip).uint(3,n.toLong()).uint(4,pin.toLong()).uint(5,state!!.channel.toLong()); state = LightState.from(client.request(3,Proto().data(5,config.bytes.toByteArray())).message(3)); settings = false; error = "" } catch (e: Exception) { error = e.message ?: "Invalid settings" } } }) { Text("Save") } }, dismissButton = { TextButton(onClick = { settings = false }) { Text("Cancel") } })
+        var name by remember { mutableStateOf(state!!.name) }
+        var strip by remember { mutableStateOf(state!!.strip) }
+        var count by remember { mutableStateOf(state!!.count.toString()) }
+        var gpio by remember { mutableStateOf(state!!.gpio.toString()) }
+        var wifiEnabled by remember { mutableStateOf(state!!.wifiEnabled) }
+        var matterEnabled by remember { mutableStateOf(state!!.matterEnabled) }
+        var confirmDisableWifi by remember { mutableStateOf(false) }
+        var saveSettings by remember { mutableStateOf(false) }
+        var relayEnabled by remember { mutableStateOf(state!!.relayEnabled) }
+        var relayGpio by remember { mutableStateOf(state!!.relayGpio.toString()) }
+        var relayInverted by remember { mutableStateOf(state!!.relayInverted) }
+        AlertDialog(onDismissRequest = { settings = false }, title = { Text("Light settings") }, text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(name, { name = it }, label = { Text("Name") })
+                listOf("WS2805","WS2814","WS2812","SK6812").forEach { type -> Row(Modifier.clickable { strip = type }, verticalAlignment = Alignment.CenterVertically) { RadioButton(strip == type, { strip = type }); Text(type) } }
+                OutlinedTextField(count, { count = it }, label = { Text("Controllers") })
+                OutlinedTextField(gpio, { gpio = it }, label = { Text("Data Pin") })
+                HorizontalDivider()
+                Text("Relay", style = MaterialTheme.typography.titleSmall)
+                Text("A relay switches power to your LED strip, reducing standby power when the light is off. Enable this if your controller uses a relay to power its LEDs.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(relayEnabled, { relayEnabled = it }, enabled = state!!.build >= 27); Text("Enable Relay")
+                }
+                if (relayEnabled) {
+                    OutlinedTextField(relayGpio, { relayGpio = it }, label = { Text("Relay GPIO") })
+                    Row(verticalAlignment = Alignment.CenterVertically) { Checkbox(relayInverted, { relayInverted = it }); Text("Invert Relay") }
+                    Text("Enable inversion for a relay that switches on when its GPIO is low.")
+                }
+                if (state!!.build < 27) Text("Relay settings require firmware build 27 or newer.")
+                HorizontalDivider()
+                Text("Wi-Fi", style = MaterialTheme.typography.titleSmall)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(wifiEnabled, { wifiEnabled = it }, enabled = state!!.build >= 34); Text("Enable Wi-Fi")
+                }
+                Text("Changing this setting restarts Luxio. Disabled Wi-Fi releases network memory. Use Bluetooth or USB to re-enable it; the saved network is retained.", style = MaterialTheme.typography.bodySmall)
+                if (state!!.supportsMatter) {
+                    HorizontalDivider()
+                    Text("Matter", style = MaterialTheme.typography.titleSmall)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(matterEnabled, { matterEnabled = it }, enabled = state!!.build >= 34); Text("Enable Matter")
+                    }
+                    Text("Matter connects Luxio to smart home systems when Wi-Fi is connected. Changing this setting restarts Luxio to release its memory; pairings are retained.", style = MaterialTheme.typography.bodySmall)
+                }
+                if (state!!.build < 34) Text("Wi-Fi and Matter switches require firmware build 34 or newer.")
+                if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error)
+            }
+        }, confirmButton = { TextButton(onClick = {
+            // Android currently uses HTTP for every physical-device connection.
+            if (state!!.wifiEnabled && !wifiEnabled) confirmDisableWifi = true else saveSettings = true
+        }) { Text("Save") } }, dismissButton = { TextButton(onClick = { settings = false }) { Text("Cancel") } })
+        if (confirmDisableWifi) AlertDialog(onDismissRequest = { confirmDisableWifi = false }, title = { Text("Disable Wi-Fi?") }, text = {
+            Text("You are connected over Wi-Fi. Saving will restart Luxio and disconnect this connection and Matter. Use Bluetooth or USB to enable Wi-Fi again.")
+        }, confirmButton = { TextButton(onClick = { confirmDisableWifi = false; saveSettings = true }) { Text("Disable Wi-Fi") } }, dismissButton = { TextButton(onClick = { confirmDisableWifi = false }) { Text("Cancel") } })
+        LaunchedEffect(saveSettings) {
+            if (!saveSettings) return@LaunchedEffect
+            try {
+                val n = count.toInt(); val pin = gpio.toInt()
+                require(n in 1..1024 && pin in 0..54 && name.isNotBlank()) { "Invalid settings" }
+                val relayPin = if (relayEnabled) relayGpio.toInt() else 0
+                require(!relayEnabled || (relayPin in 0..54 && relayPin != pin)) { "Relay GPIO must be between 0 and 54 and different from Data Pin" }
+                val config = Proto().text(1,name).text(2,strip).uint(3,n.toLong()).uint(4,pin.toLong()).uint(5,state!!.channel.toLong())
+                if (state!!.build >= 27) {
+                    val relay = Proto().uint(1, if (relayEnabled) 1 else 0).uint(2, relayPin.toLong()).uint(3, if (relayInverted) 1 else 0)
+                    config.data(6, relay.bytes.toByteArray())
+                }
+                if (state!!.build >= 34) {
+                    config.data(7, Proto().uint(1, if (wifiEnabled) 1 else 0).bytes.toByteArray())
+                    config.data(8, Proto().uint(1, if (matterEnabled) 1 else 0).bytes.toByteArray())
+                }
+                state = LightState.from(client.request(3,Proto().data(5,config.bytes.toByteArray())).message(3))
+                settings = false; error = ""
+            } catch (e: Exception) { error = e.message ?: "Invalid settings" }
+            finally { saveSettings = false }
+        }
     }
 }

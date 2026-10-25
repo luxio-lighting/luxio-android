@@ -5,6 +5,20 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ProtocolTest {
+    @Test fun relayDefaultsAndGpioZeroRemainDistinct() {
+        val old = LightState.from(Proto.decode(Proto().uint(2, 26).bytes.toByteArray()))
+        assertFalse(old.relayEnabled); assertFalse(old.relayInverted)
+        val relay = Proto().uint(1, 1).uint(2, 0).uint(3, 1)
+        val config = Proto().data(6, relay.bytes.toByteArray())
+        val state = LightState.from(Proto.decode(Proto().uint(2, 27).data(3, config.bytes.toByteArray()).bytes.toByteArray()))
+        assertTrue(state.relayEnabled); assertEquals(0, state.relayGpio); assertTrue(state.relayInverted)
+    }
+
+    @Test fun respectsMatterCapabilityAndSupportsOlderFirmware() {
+        assertTrue(LightState.from(Proto.decode(Proto().uint(2, 27).bytes.toByteArray())).supportsMatter)
+        assertFalse(LightState.from(Proto.decode(Proto().uint(2, 28).uint(17, 1).bytes.toByteArray())).supportsMatter)
+    }
+
     @Test fun decodesTypeScriptFixtureAndEncodesMatchingRequest() {
         // Generated with the canonical TS codec: UTF-8 name, power off with nonzero brightness,
         // a two-byte varint channel and the independent RGBCCT white channels.

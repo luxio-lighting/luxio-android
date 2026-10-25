@@ -64,9 +64,12 @@ val animationPresets = listOf(
         function setup() end
         function loop()
           local phase = luxio_millis() / 1800 * luxio_get_parameter("Speed") / 50
+          local pulse = luxio_get_parameter("Pulse")
+          local spacing = luxio_get_parameter("Spacing")
+          local sin, floor = math.sin, math.floor
           for i = 0, luxio_get_pixel_count() - 1 do
-            local t = luxio_get_parameter("Pulse") and (0.35 + 0.65 * (math.sin(i / luxio_get_parameter("Spacing") + phase) + 1) / 2) or 1
-            luxio_set_pixel_color(i, math.floor(130 * t), math.floor(70 * t), math.floor(255 * t))
+            local t = pulse and (0.35 + 0.65 * (sin(i / spacing + phase) + 1) / 2) or 1
+            luxio_set_pixel_color(i, floor(130 * t), floor(70 * t), floor(255 * t))
           end
         end
     """.trimIndent()),
@@ -78,9 +81,12 @@ val animationPresets = listOf(
         function setup() end
         function loop()
           local phase = luxio_millis() / 1800 * luxio_get_parameter("Speed") / 50
+          local pulse = luxio_get_parameter("Pulse")
+          local spacing = luxio_get_parameter("Spacing")
+          local sin, floor = math.sin, math.floor
           for i = 0, luxio_get_pixel_count() - 1 do
-            local t = luxio_get_parameter("Pulse") and (0.35 + 0.65 * (math.sin(i / luxio_get_parameter("Spacing") + phase) + 1) / 2) or 1
-            luxio_set_pixel_color(i, math.floor(255 * t), math.floor(70 * t), math.floor(12 * t))
+            local t = pulse and (0.35 + 0.65 * (sin(i / spacing + phase) + 1) / 2) or 1
+            luxio_set_pixel_color(i, floor(255 * t), floor(70 * t), floor(12 * t))
           end
         end
     """.trimIndent()),
@@ -92,9 +98,12 @@ val animationPresets = listOf(
         function setup() end
         function loop()
           local phase = luxio_millis() / 1800 * luxio_get_parameter("Speed") / 50
+          local pulse = luxio_get_parameter("Pulse")
+          local spacing = luxio_get_parameter("Spacing")
+          local sin, floor = math.sin, math.floor
           for i = 0, luxio_get_pixel_count() - 1 do
-            local t = luxio_get_parameter("Pulse") and (0.35 + 0.65 * (math.sin(i / luxio_get_parameter("Spacing") + phase) + 1) / 2) or 1
-            luxio_set_pixel_color(i, math.floor(15 * t), math.floor(140 * t), math.floor(255 * t))
+            local t = pulse and (0.35 + 0.65 * (sin(i / spacing + phase) + 1) / 2) or 1
+            luxio_set_pixel_color(i, floor(15 * t), floor(140 * t), floor(255 * t))
           end
         end
     """.trimIndent()),
