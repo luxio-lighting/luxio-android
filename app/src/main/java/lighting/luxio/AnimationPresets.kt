@@ -155,7 +155,8 @@ val animationPresets = listOf(
     """.trimIndent()),
     AnimationPreset("Candle", """
         -- @preview aa5016,ffa537
-        -- A calm amber flame with gentle flicker and occasional soft dips.
+        -- A gentle candle flame, using dedicated white LEDs when available.
+        local color_type = luxio_get_color_type and luxio_get_color_type() or "RGB"
         function loop()
           local t = luxio_millis() / 1000
           local sin, floor, max = math.sin, math.floor, math.max
@@ -163,7 +164,14 @@ val animationPresets = listOf(
             + 0.03 * sin(t * 13.9) - 0.18 * max(0, sin(t * 0.73)) ^ 16
           for i = 0, luxio_get_pixel_count() - 1 do
             local glow = flame + 0.02 * sin(i * 2.4 + t * 5.3)
-            luxio_set_pixel_color(i, floor(255 * glow), floor(155 * glow), floor(48 * glow))
+            if color_type == "RGBCCT" then
+              luxio_set_pixel_color(i, 0, 0, 0, 0, floor(255 * glow), 0)
+            elseif color_type == "RGBW" then
+              -- Move the neutral component to white; retain the warm amber tint.
+              luxio_set_pixel_color(i, floor(207 * glow), floor(107 * glow), 0, floor(48 * glow))
+            else
+              luxio_set_pixel_color(i, floor(255 * glow), floor(155 * glow), floor(48 * glow))
+            end
           end
         end
     """.trimIndent()),
