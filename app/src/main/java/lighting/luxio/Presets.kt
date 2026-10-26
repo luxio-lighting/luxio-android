@@ -1,0 +1,56 @@
+package lighting.luxio
+
+// Keep this catalog aligned with iOS Presets.swift.
+val gradientPresets = listOf(
+    LibraryItem(name = "Sunset", kind = 1, colors = listOf(LedColor(listOf(255, 110, 20, 0, 0, 0)), LedColor(listOf(255, 35, 110, 0, 0, 0)), LedColor(listOf(105, 30, 255, 0, 0, 0)))),
+    LibraryItem(name = "Lagoon", kind = 1, colors = listOf(LedColor(listOf(15, 65, 255, 0, 0, 0)), LedColor(listOf(20, 255, 180, 0, 0, 0)))),
+    LibraryItem(name = "Peach", kind = 1, colors = listOf(LedColor(listOf(255, 65, 85, 0, 0, 0)), LedColor(listOf(255, 220, 140, 0, 0, 0)))),
+    LibraryItem(name = "Northern sky", kind = 1, colors = listOf(LedColor(listOf(65, 25, 255, 0, 0, 0)), LedColor(listOf(0, 180, 255, 0, 0, 0)), LedColor(listOf(100, 255, 160, 0, 0, 0)))),
+    LibraryItem(name = "Dawn", kind = 1, colors = listOf(LedColor(listOf(65, 35, 130, 0, 0, 0)), LedColor(listOf(205, 80, 140, 0, 0, 0)), LedColor(listOf(255, 170, 100, 0, 0, 0)), LedColor(listOf(255, 225, 160, 0, 0, 0)))),
+    LibraryItem(name = "Golden hour", kind = 1, colors = listOf(LedColor(listOf(255, 65, 15, 0, 0, 0)), LedColor(listOf(255, 150, 30, 0, 0, 0)), LedColor(listOf(255, 225, 110, 0, 0, 0)))),
+    LibraryItem(name = "Coral", kind = 1, colors = listOf(LedColor(listOf(255, 40, 85, 0, 0, 0)), LedColor(listOf(255, 100, 90, 0, 0, 0)), LedColor(listOf(255, 175, 125, 0, 0, 0)))),
+    LibraryItem(name = "Apricot", kind = 1, colors = listOf(LedColor(listOf(255, 135, 75, 0, 0, 0)), LedColor(listOf(255, 205, 145, 0, 0, 0)), LedColor(listOf(255, 180, 185, 0, 0, 0)))),
+    LibraryItem(name = "Rose", kind = 1, colors = listOf(LedColor(listOf(120, 10, 65, 0, 0, 0)), LedColor(listOf(235, 45, 120, 0, 0, 0)), LedColor(listOf(255, 155, 185, 0, 0, 0)))),
+    LibraryItem(name = "Lavender", kind = 1, colors = listOf(LedColor(listOf(90, 55, 185, 0, 0, 0)), LedColor(listOf(165, 125, 255, 0, 0, 0)), LedColor(listOf(240, 185, 255, 0, 0, 0)))),
+    LibraryItem(name = "Cotton candy", kind = 1, colors = listOf(LedColor(listOf(255, 140, 205, 0, 0, 0)), LedColor(listOf(195, 150, 255, 0, 0, 0)), LedColor(listOf(115, 210, 255, 0, 0, 0)))),
+    LibraryItem(name = "Opal", kind = 1, colors = listOf(LedColor(listOf(120, 235, 210, 0, 0, 0)), LedColor(listOf(160, 195, 255, 0, 0, 0)), LedColor(listOf(230, 170, 245, 0, 0, 0)), LedColor(listOf(255, 210, 175, 0, 0, 0)))),
+    LibraryItem(name = "Glacier", kind = 1, colors = listOf(LedColor(listOf(25, 55, 155, 0, 0, 0)), LedColor(listOf(30, 155, 230, 0, 0, 0)), LedColor(listOf(140, 245, 255, 0, 0, 0)))),
+    LibraryItem(name = "Ocean", kind = 1, colors = listOf(LedColor(listOf(10, 15, 80, 0, 0, 0)), LedColor(listOf(15, 65, 190, 0, 0, 0)), LedColor(listOf(0, 160, 195, 0, 0, 0)))),
+    LibraryItem(name = "Reef", kind = 1, colors = listOf(LedColor(listOf(0, 110, 140, 0, 0, 0)), LedColor(listOf(0, 220, 180, 0, 0, 0)), LedColor(listOf(140, 255, 170, 0, 0, 0)))),
+    LibraryItem(name = "Forest", kind = 1, colors = listOf(LedColor(listOf(10, 50, 35, 0, 0, 0)), LedColor(listOf(20, 120, 65, 0, 0, 0)), LedColor(listOf(105, 185, 55, 0, 0, 0)))),
+    LibraryItem(name = "Meadow", kind = 1, colors = listOf(LedColor(listOf(35, 145, 90, 0, 0, 0)), LedColor(listOf(140, 220, 90, 0, 0, 0)), LedColor(listOf(245, 240, 135, 0, 0, 0)))),
+    LibraryItem(name = "Citrus", kind = 1, colors = listOf(LedColor(listOf(80, 220, 15, 0, 0, 0)), LedColor(listOf(220, 255, 20, 0, 0, 0)), LedColor(listOf(255, 175, 15, 0, 0, 0)))),
+    LibraryItem(name = "Mango", kind = 1, colors = listOf(LedColor(listOf(255, 195, 25, 0, 0, 0)), LedColor(listOf(255, 100, 10, 0, 0, 0)), LedColor(listOf(245, 30, 75, 0, 0, 0)))),
+    LibraryItem(name = "Firelight", kind = 1, colors = listOf(LedColor(listOf(100, 5, 0, 0, 0, 0)), LedColor(listOf(235, 35, 0, 0, 0, 0)), LedColor(listOf(255, 115, 10, 0, 0, 0)), LedColor(listOf(255, 200, 65, 0, 0, 0)))),
+    LibraryItem(name = "Ruby", kind = 1, colors = listOf(LedColor(listOf(65, 0, 45, 0, 0, 0)), LedColor(listOf(165, 5, 65, 0, 0, 0)), LedColor(listOf(255, 35, 85, 0, 0, 0)))),
+    LibraryItem(name = "Amethyst", kind = 1, colors = listOf(LedColor(listOf(40, 10, 100, 0, 0, 0)), LedColor(listOf(115, 30, 210, 0, 0, 0)), LedColor(listOf(215, 85, 245, 0, 0, 0)))),
+    LibraryItem(name = "Nebula", kind = 1, colors = listOf(LedColor(listOf(20, 35, 150, 0, 0, 0)), LedColor(listOf(105, 20, 210, 0, 0, 0)), LedColor(listOf(225, 25, 160, 0, 0, 0)), LedColor(listOf(255, 90, 115, 0, 0, 0)))),
+    LibraryItem(name = "Neon", kind = 1, colors = listOf(LedColor(listOf(0, 225, 255, 0, 0, 0)), LedColor(listOf(65, 65, 255, 0, 0, 0)), LedColor(listOf(225, 0, 255, 0, 0, 0))))
+)
+val colorPresets = listOf(
+    LibraryItem(name = "Ruby", kind = 0, colors = listOf(LedColor(listOf(255, 0, 0, 0, 0, 0)))),
+    LibraryItem(name = "Coral", kind = 0, colors = listOf(LedColor(listOf(255, 100, 80, 0, 0, 0)))),
+    LibraryItem(name = "Nightlight", kind = 0, colors = listOf(LedColor(listOf(255, 80, 20, 0, 0, 0)))),
+    LibraryItem(name = "Golden hour", kind = 0, colors = listOf(LedColor(listOf(255, 110, 25, 0, 0, 0)))),
+    LibraryItem(name = "Amber", kind = 0, colors = listOf(LedColor(listOf(255, 150, 0, 0, 0, 0)))),
+    LibraryItem(name = "Relax", kind = 0, colors = listOf(LedColor(listOf(255, 185, 80, 0, 0, 0)))),
+    LibraryItem(name = "Read", kind = 0, colors = listOf(LedColor(listOf(255, 220, 160, 0, 0, 0)))),
+    LibraryItem(name = "Sunshine", kind = 0, colors = listOf(LedColor(listOf(255, 225, 0, 0, 0, 0)))),
+    LibraryItem(name = "Lemon", kind = 0, colors = listOf(LedColor(listOf(235, 255, 40, 0, 0, 0)))),
+    LibraryItem(name = "Lime", kind = 0, colors = listOf(LedColor(listOf(145, 255, 30, 0, 0, 0)))),
+    LibraryItem(name = "Green", kind = 0, colors = listOf(LedColor(listOf(30, 255, 35, 0, 0, 0)))),
+    LibraryItem(name = "Emerald", kind = 0, colors = listOf(LedColor(listOf(0, 255, 110, 0, 0, 0)))),
+    LibraryItem(name = "Mint", kind = 0, colors = listOf(LedColor(listOf(30, 230, 150, 0, 0, 0)))),
+    LibraryItem(name = "Turquoise", kind = 0, colors = listOf(LedColor(listOf(0, 255, 220, 0, 0, 0)))),
+    LibraryItem(name = "Cyan", kind = 0, colors = listOf(LedColor(listOf(0, 255, 255, 0, 0, 0)))),
+    LibraryItem(name = "Concentrate", kind = 0, colors = listOf(LedColor(listOf(170, 225, 255, 0, 0, 0)))),
+    LibraryItem(name = "Moonlight", kind = 0, colors = listOf(LedColor(listOf(125, 175, 255, 0, 0, 0)))),
+    LibraryItem(name = "Ocean", kind = 0, colors = listOf(LedColor(listOf(10, 90, 255, 0, 0, 0)))),
+    LibraryItem(name = "Blue", kind = 0, colors = listOf(LedColor(listOf(30, 30, 255, 0, 0, 0)))),
+    LibraryItem(name = "Iris", kind = 0, colors = listOf(LedColor(listOf(125, 45, 255, 0, 0, 0)))),
+    LibraryItem(name = "Violet", kind = 0, colors = listOf(LedColor(listOf(175, 30, 255, 0, 0, 0)))),
+    LibraryItem(name = "Magenta", kind = 0, colors = listOf(LedColor(listOf(255, 30, 220, 0, 0, 0)))),
+    LibraryItem(name = "Blush", kind = 0, colors = listOf(LedColor(listOf(255, 65, 140, 0, 0, 0)))),
+    LibraryItem(name = "Rose", kind = 0, colors = listOf(LedColor(listOf(255, 30, 70, 0, 0, 0))))
+)
+val builtInAnimations by lazy { animationPresets.map { animationItem(it.name, it.source) } }
