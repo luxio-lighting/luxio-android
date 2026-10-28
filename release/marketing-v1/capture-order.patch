@@ -1,0 +1,11 @@
+--- a/app/src/main/java/lighting/luxio/MainActivity.kt
++++ b/app/src/main/java/lighting/luxio/MainActivity.kt
+@@ -83,7 +83,7 @@
+                     }
+                 }
+             }
+-            items(discovery.clients.entries.sortedBy { it.value.state?.name?.lowercase() }, key = { it.key }) { (id, client) ->
++            items(discovery.clients.entries.sortedWith(compareBy<Map.Entry<String, DeviceClient>>({ it.value.state?.on != true }, { it.value.state?.name?.lowercase() })), key = { it.key }) { (id, client) ->
+                 HomeLightCard(client, onOpen = { selectedId = id })
+             }
+             if(discovery.bluetoothStatus != null) item {

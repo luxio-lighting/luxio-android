@@ -48,7 +48,7 @@ SK6812 and WS2814 use RGBW; WS2805 uses RGB plus warm/cool white; WS2812 uses RG
 - 15 host tests cover canonical protobuf interoperability, radio defaults, BLE frame boundaries, catalog metadata, simulator persistence, libraries and animation-state regressions.
 - 23 emulator tests exercise actual Compose interactions, warm/cool and single-white channels, saved libraries, settings, Wi-Fi confirmation, the HTTP transport, network setup, Matter QR/copy and OTA progress with a local controller fixture.
 - Native tests run all ten presets across all four strip types at 1, 60 and 1,024 LEDs, verify dedicated-white Candle output, parameter changes and Lua resource/error boundaries.
-- Screenshots under `screenshots/` are captured from the Android emulator. Home shows read-only discovery of existing controllers; editor/settings images use the virtual device; Wi-Fi and update images use the isolated loopback controller fixture.
+- The latest screenshots are in [`release/marketing-v1/`](release/marketing-v1/): five approved captioned store PNGs, their native emulator originals in `raw/`, and editable layouts. Superseded captures have been removed.
 
 The emulator cannot qualify real Android Bluetooth pairing, radio range, vendor-specific background behavior or haptic feel. Those still need a physical Android phone. The tests never mutate a controller found on the user's network; hardware operations use a loopback test controller.
 

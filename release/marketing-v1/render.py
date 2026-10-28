@@ -1,0 +1,28 @@
+"""Create the editable HTML layouts for Luxio's App Store previews."""
+from pathlib import Path
+import json
+root=Path(__file__).resolve().parent
+slides=[
+ ('01-control','Control your<br>Luxios','Open Source Wi-Fi Gradient LED Strips.','home'),
+ ('02-colors','Set the Color.<br>Or Gradient.','Blend beautiful colors into your space.','gradient'),
+ ('03-animations','Start your<br>Animations','Bring your lighting to life.','animation'),
+ ('04-settings','Manage<br>Settings','Easy to set-up. Powerful to dig in.','settings'),
+ ('05-matter','Connect with<br>Matter.','Connect with Homey, Home Assistant and others.','matter'),
+]
+css='''
+@font-face{font-family:Nunito;src:url(fonts/Nunito-latin.ttf);font-weight:800;font-display:block}
+@font-face{font-family:Nunito;src:url(fonts/Nunito-600.ttf);font-weight:600;font-display:block}
+*{box-sizing:border-box}html,body{margin:0;width:1620px;height:2880px;overflow:hidden;background:#101116}
+body{font-family:Nunito,sans-serif;background:radial-gradient(ellipse 85% 46% at 10% 82%,#00d2ff16,transparent 75%),radial-gradient(ellipse 78% 42% at 95% 62%,#4fff7f12,transparent 75%),#101116}
+.copy{position:absolute;top:139px;left:50px;right:50px;text-align:center;z-index:2}
+h1{margin:0;font-size:140px;font-weight:800;line-height:1.06;letter-spacing:-4px;background:linear-gradient(45deg,#00D2FF 16%,#2EECB6 58%,#4FFF7F 92%);background-clip:text;-webkit-background-clip:text;color:transparent}
+p{margin:34px 0 0;color:#e6e7eb;font-size:48px;font-weight:600;line-height:1.4;letter-spacing:-.5px}
+.phone{position:absolute;top:636px;left:237px;width:1146px;padding:12px;border-radius:112px;background:linear-gradient(140deg,#747a80,#25272c 22%,#363b43 65%,#676d75);box-shadow:0 55px 140px #0009,0 0 0 2px #ffffff15}
+.screen{overflow:hidden;border-radius:100px;background:#19191e;position:relative}
+.screen img{display:block;width:100%;height:auto}
+.island{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:#050506}
+'''
+for slug,title,subtitle,screen in slides:
+ html=f'<!doctype html><html><head><meta charset="utf-8"><title>Luxio — {screen}</title><style>{css}</style></head><body><div class="copy"><h1>{title}</h1><p>{subtitle}</p></div><div class="phone"><div class="screen"><img src="raw/{screen}.png"><div class="island"></div></div></div></body></html>'
+ (root/(slug+'.html')).write_text(html)
+(root/'copy.json').write_text(json.dumps([{'file':s+'.png','title':t.replace('<br>',' '),'subtitle':sub} for s,t,sub,_ in slides],indent=2)+'\n')

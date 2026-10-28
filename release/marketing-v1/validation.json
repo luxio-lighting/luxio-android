@@ -1,0 +1,43 @@
+{
+  "captureTest": "passed",
+  "screenshots": [
+    {
+      "file": "01-control.png",
+      "width": 1620,
+      "height": 2880,
+      "alpha": false
+    },
+    {
+      "file": "02-colors.png",
+      "width": 1620,
+      "height": 2880,
+      "alpha": false
+    },
+    {
+      "file": "03-animations.png",
+      "width": 1620,
+      "height": 2880,
+      "alpha": false
+    },
+    {
+      "file": "04-settings.png",
+      "width": 1620,
+      "height": 2880,
+      "alpha": false
+    },
+    {
+      "file": "05-matter.png",
+      "width": 1620,
+      "height": 2880,
+      "alpha": false
+    }
+  ],
+  "uploadStatus": "All five approved screenshots uploaded and submitted for production review",
+  "approvedScreenshots": [
+    "01-control.png",
+    "02-colors.png",
+    "03-animations.png",
+    "04-settings.png",
+    "05-matter.png"
+  ]
+}

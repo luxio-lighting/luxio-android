@@ -1,0 +1,27 @@
+[
+  {
+    "file": "01-control.png",
+    "title": "Control your Luxios",
+    "subtitle": "Open Source Wi-Fi Gradient LED Strips."
+  },
+  {
+    "file": "02-colors.png",
+    "title": "Set the Color. Or Gradient.",
+    "subtitle": "Blend beautiful colors into your space."
+  },
+  {
+    "file": "03-animations.png",
+    "title": "Start your Animations",
+    "subtitle": "Bring your lighting to life."
+  },
+  {
+    "file": "04-settings.png",
+    "title": "Manage Settings",
+    "subtitle": "Easy to set-up. Powerful to dig in."
+  },
+  {
+    "file": "05-matter.png",
+    "title": "Connect with Matter.",
+    "subtitle": "Connect with Homey, Home Assistant and others."
+  }
+]
