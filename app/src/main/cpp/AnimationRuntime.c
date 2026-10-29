@@ -69,7 +69,7 @@ static int set_pixel(lua_State *L) {
         values[c] = (int)value;
     }
     if ((a->strip == 2805 && values[3]) || ((a->strip == 2814 || a->strip == 6812) && (values[4] || values[5])) ||
-        (a->strip == 2812 && (values[3] || values[4] || values[5]))) return luaL_error(L, "Channel unavailable on this strip type");
+        ((a->strip == 2812 || a->strip == 2811 || a->strip == 2813 || a->strip == 2815) && (values[3] || values[4] || values[5]))) return luaL_error(L, "Channel unavailable on this strip type");
     for (int c = 0; c < 6; c++) a->pixels[index * 6 + c] = (uint8_t)values[c];
     return 0;
 }
@@ -86,7 +86,7 @@ static int fill(lua_State *L) {
         if (value < 0 || value > 255) return luaL_error(L, "Channels must be 0-255");
         values[c] = (uint8_t)value;
     }
-    if ((a->strip == 2805 && values[3]) || ((a->strip == 2814 || a->strip == 6812) && (values[4] || values[5])) || (a->strip == 2812 && (values[3] || values[4] || values[5]))) return luaL_error(L, "Channel unavailable on this strip type");
+    if ((a->strip == 2805 && values[3]) || ((a->strip == 2814 || a->strip == 6812) && (values[4] || values[5])) || ((a->strip == 2812 || a->strip == 2811 || a->strip == 2813 || a->strip == 2815) && (values[3] || values[4] || values[5]))) return luaL_error(L, "Channel unavailable on this strip type");
     for (lua_Integer i = start; i < start + length; i++) memcpy(a->pixels + i * 6, values, 6);
     return 0;
 }
@@ -170,7 +170,7 @@ static int render_waves(lua_State *L) {
         size_t length = lua_rawlen(L, -1);
         if (length > 4) return luaL_error(L, "Use at most four terms per color channel");
         channels[c].count = (int)length;
-        if (((a->strip == 2805 && c == 3) || ((a->strip == 2814 || a->strip == 6812) && c >= 4) || (a->strip == 2812 && c >= 3)) && (length || channels[c].offset != 0))
+        if (((a->strip == 2805 && c == 3) || ((a->strip == 2814 || a->strip == 6812) && c >= 4) || ((a->strip == 2812 || a->strip == 2811 || a->strip == 2813 || a->strip == 2815) && c >= 3)) && (length || channels[c].offset != 0))
             return luaL_error(L, "Channel unavailable on this strip type");
         for (size_t t = 0; t < length; t++) {
             lua_rawgeti(L, -1, t + 1); luaL_checktype(L, -1, LUA_TTABLE);
@@ -234,7 +234,7 @@ static int initialize(lua_State *L) {
     return 0;
 }
 LuxioAnimation *luxio_animation_create(int count, int strip) {
-    if (count < 1 || count > 1024 || (strip != 2805 && strip != 2814 && strip != 2812 && strip != 6812)) return NULL;
+    if (count < 1 || count > 1024 || (strip != 2805 && strip != 2814 && strip != 2812 && strip != 6812 && strip != 2811 && strip != 2813 && strip != 2815)) return NULL;
     LuxioAnimation *a = calloc(1, sizeof(*a)); if (!a) return NULL;
     a->count = count; a->strip = strip;
     a->lua = lua_newstate(allocate, a);

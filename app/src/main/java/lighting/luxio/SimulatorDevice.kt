@@ -4,7 +4,8 @@ import java.util.UUID
 
 // In-process device API: uses the same wire contract, controls and Lua preview as hardware.
 class SimulatorDevice(saved: ByteArray? = null, private val persist: (ByteArray) -> Unit = {}) {
-    var state = LightState("Luxio Studio", "WS2805", 60, 16, 0, 180, "", true, 35, "", emptyList(), deviceId = "luxio-simulator", ip = "simulator", mode = 1,
+    companion object { val supportedStripTypes = listOf("WS2805", "WS2814", "WS2812", "SK6812", "WS2811", "WS2813", "WS2815") }
+    var state = LightState("Luxio Studio", "WS2805", 60, 16, 0, 180, "", true, 35, "", emptyList(), supportedStripTypes = supportedStripTypes, deviceId = "luxio-simulator", ip = "simulator", mode = 1,
         gradient = LibraryItem(name = "Luxio", kind = 1, colors = listOf(LedColor(listOf(255,70,40,0,0,0)), LedColor(listOf(255,40,150,0,0,0)), LedColor(listOf(100,40,255,0,0,0)))))
         private set
     private val libraries = Array(3) { mutableListOf<LibraryItem>() }
@@ -12,8 +13,8 @@ class SimulatorDevice(saved: ByteArray? = null, private val persist: (ByteArray)
     init {
         if(saved != null) runCatching {
             val f = Proto.decode(saved); val restored = LightState.from(f.message(3))
-            require(restored.deviceId == "luxio-simulator" && restored.count in 1..1024 && restored.strip in listOf("WS2812", "WS2814", "WS2805", "SK6812"))
-            state = restored
+            require(restored.deviceId == "luxio-simulator" && restored.count in 1..1024 && restored.strip in supportedStripTypes)
+            state = restored.copy(supportedStripTypes = supportedStripTypes)
             for(kind in 0..2) libraries[kind].addAll(f.messages(listOf(18,15,4)[kind]).map { LibraryItem.from(it, kind) })
             if(f.fields[5] != null) animation = LibraryItem.from(f.message(5), 2)
         }
@@ -35,7 +36,7 @@ class SimulatorDevice(saved: ByteArray? = null, private val persist: (ByteArray)
             15 -> state = state.copy(on = input.number(10) != 0)
             3 -> {
                 val c = input.message(5)
-                require(c.text(1).isNotBlank() && c.text(1).toByteArray().size <= 63 && c.text(2) in listOf("WS2812", "WS2814", "WS2805", "SK6812") && c.number(3) in 1..1024 && c.number(4) in 0..54) { "Invalid device settings" }
+                require(c.text(1).isNotBlank() && c.text(1).toByteArray().size <= 63 && c.text(2) in supportedStripTypes && c.number(3) in 1..1024 && c.number(4) in 0..54) { "Invalid device settings" }
                 val old = state
                 state = state.copy(name = c.text(1), strip = c.text(2), count = c.number(3), gpio = c.number(4), channel = c.number(5), relayEnabled = c.message(6).number(1) != 0, relayGpio = c.message(6).number(2), relayInverted = c.message(6).number(3) != 0, wifiEnabled = c.message(7).number(1) != 0, matterEnabled = c.message(8).number(1) != 0)
                 if(old.strip != state.strip || old.count != state.count) { state = state.copy(mode = 0, color = LedColor(), colorId = "", gradientId = "", animation = "", animationName = "", parameters = emptyList(), preview = emptyList()); animation = null }

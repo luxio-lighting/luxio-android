@@ -5,6 +5,21 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ProtocolTest {
+    @Test fun firmwareStripCapabilitiesRoundTripWithoutClientWhitelist() {
+        val advertised = listOf("WS2811", "WS2813", "WS2815", "FUTURE")
+        val fields = Proto().apply { advertised.forEach { text(19, it) } }
+        val state = LightState.from(Proto.decode(fields.bytes.toByteArray()))
+        assertEquals(advertised, state.supportedStripTypes)
+        assertEquals(advertised, LightState.from(Proto.decode(state.proto().bytes.toByteArray())).supportedStripTypes)
+        assertTrue(LightState.from(Proto.decode(byteArrayOf())).supportedStripTypes.isEmpty())
+        val simulator = SimulatorDevice()
+        assertTrue(simulator.state.supportedStripTypes.containsAll(advertised.take(3)))
+        for(type in advertised.take(3)) {
+            simulator.request(Proto().uint(2, 3).data(5, simulator.state.copy(strip=type).config().bytes.toByteArray()).bytes.toByteArray())
+            assertFalse(simulator.state.hasWhite)
+        }
+    }
+
     @Test fun relayDefaultsAndGpioZeroRemainDistinct() {
         val old = LightState.from(Proto.decode(Proto().uint(2, 26).bytes.toByteArray()))
         assertFalse(old.relayEnabled); assertFalse(old.relayInverted)
